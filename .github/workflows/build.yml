@@ -70,6 +70,13 @@ jobs:
           biber
           biber-windows
           collection-latexrecommended
+          collection-mathscience
+          tocloft
+          eso-pic
+          microtype
+          ragged2e
+          chngcntr
+          pifont
     - run: DISM.exe /Online /Add-Capability /CapabilityName:Language.Fonts.Hans~~~und-HANS~0.0.1.0
     - run: DISM.exe /Online /Add-Capability /CapabilityName:Language.Fonts.Hant~~~und-HANT~0.0.1.0
     - run: latexmk main.tex
