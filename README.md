@@ -1,3 +1,4 @@
+﻿![Build thesis](https://github.com/LWBmljx/SEU-Graduation-Thesis-Template-AutoBuild/actions/workflows/build.yml/badge.svg)
 # 东南大学本科毕业设计（论文）LaTeX 模板
 
 本仓库提供一套基于 `XeLaTeX` 的东南大学本科毕业设计（论文）模板，以及一份可以直接编译的完整示例。模板当前以 Windows 环境为主要目标，已经覆盖封面、声明页、AI 使用情况说明表、摘要、目录、正文、参考文献、附录、致谢与末页。
@@ -127,6 +128,48 @@ biber main
 xelatex -interaction=nonstopmode -file-line-error -halt-on-error -synctex=0 main.tex
 xelatex -interaction=nonstopmode -file-line-error -halt-on-error -synctex=0 main.tex
 ```
+
+### 自动构建（GitHub Actions）
+
+本仓库配置了 GitHub Actions 工作流，在每次向 main 分支推送代码时，自动触发 LaTeX 编译，无需本地手动编译。
+
+#### 工作流配置
+
+工作流配置文件位于 [.github/workflows/build.yml](.github/workflows/build.yml)，包含以下步骤：
+
+1. **检出代码**：获取仓库最新代码
+2. **安装 TeX Live**：部署完整的 TeX Live 环境，包含模板所需的全部 LaTeX 包
+3. **安装中文字体**：通过 DISM 命令添加 Windows 中文字体支持（Hans 和 Hant）
+4. **编译 LaTeX**：使用 latexmk 命令编译 main.tex
+5. **清理缓存**：编译完成后清理辅助文件
+6. **上传输出**：将生成的 main.pdf 上传为 GitHub Artifacts
+
+#### 获取编译结果
+
+编译完成后，可以在 GitHub 仓库的以下位置获取 PDF：
+
+1. **通过 GitHub 网页界面**：
+   - 进入仓库的 **Actions** 标签页
+   - 点击最新的 "Build thesis" 工作流运行记录
+   - 在页面下方 "Artifacts" 部分点击 "main pdf" 下载
+
+2. **通过 GitHub CLI**：
+   `ash
+   gh run download <run-id> -n "main pdf"
+   `
+
+#### 构建状态
+
+可以在 README 顶部添加构建状态徽章（Badge），直观显示最新编译结果。徽章语法如下：
+
+`markdown
+![Build thesis](https://github.com/<your-username>/SEU-Graduation-Thesis-Template-AutoBuild/actions/workflows/build.yml/badge.svg)
+`
+
+请将 <your-username> 替换为实际的 GitHub 用户名。
+
+#### 说明
+如果使用的新的包，需要在 [.github/workflows/build.yml](.github/workflows/build.yml) 中的`TeX-Live/setup-texlive-action@v4` 中的 package 中添加对应的包。
 
 ## 使用说明
 
@@ -446,3 +489,4 @@ ai_scope = {1}
 
 - `main.pdf` 是当前示例文档的编译产物，不是模板说明文档
 - 模板已支持 Windows 和 macOS 字体自动回退；Linux 用户请自行处理字体兼容问题
+
