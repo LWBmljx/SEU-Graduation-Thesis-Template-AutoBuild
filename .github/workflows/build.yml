@@ -10,26 +10,22 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     
     - uses: TeX-Live/setup-texlive-action@v4
       with:
         packages: >-
           texliveonfly
           scheme-basic
-          cleveref
           hyperref
           latexmk
           biblatex
           xelatex
           xetex
-          amsthm
           threeparttable
           multirow
           longtable
           algorithms
-          siunitx
-          thuthesis
           ctex
           iftex
           kvdefinekeys
@@ -40,33 +36,18 @@ jobs:
           xparse
           geometry
           fancyhdr
-          titlesec
-          notoccite
           amsmath
           graphicx
           caption
           pdfpages
-          enumitem
-          environ
           footmisc
-          bigfoot
           xecjk
-          ulem
           array
           booktabs
-          url
-          natbib
-          bibunits
-          newtx
-          unicode-math
           fontenc
           bm
-          xits
           float
           biblatex-gb7714-2015
-          xstring
-          lscape
-          pdflscape
           biber
           biber-windows
           collection-latexrecommended
