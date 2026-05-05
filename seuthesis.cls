@@ -2113,11 +2113,53 @@
 \captionsetup[table]{position=top,skip=6pt}
 \captionsetup[subfigure]{font=seucaptionfont,justification=centering}
 
+% Match longtable captions to normal tables.
+\setlength{\LTcapwidth}{\textwidth}
+\setlength{\LTpre}{\topsep}
+\setlength{\LTpost}{\topsep}
+
+\makeatletter
+% Usage:
+% \begin{seulongtable}[<label>][<short caption>]{<col spec>}{<caption>}{<head rows>}
+%   <body rows>
+% \end{seulongtable}
+% The header argument may contain multiple rows, but should not end with \\.
+\NewDocumentEnvironment{seulongtable}{ O{} O{} m m +m }{%
+  \begingroup
+  \songti\fontsize{10.5pt}{12.6pt}\selectfont
+  \begin{longtable}{#3}
+  \if\relax\detokenize{#2}\relax
+    \caption{#4}%
+  \else
+    \caption[#2]{#4}%
+  \fi
+  \if\relax\detokenize{#1}\relax\else\label{#1}\fi
+  \tabularnewline
+  \toprule
+  #5\tabularnewline
+  \midrule
+  \endfirsthead
+  \caption*{续表~\thetable\ #4}%
+  \tabularnewline
+  \toprule
+  #5\tabularnewline
+  \midrule
+  \endhead
+  \bottomrule
+  \endfoot
+  \bottomrule
+  \endlastfoot
+}{%
+  \end{longtable}
+  \endgroup
+}
+\makeatother
+
 \counterwithin{figure}{chapter}
 \counterwithin{table}{chapter}
 \counterwithin{equation}{chapter}
 \renewcommand{\thefigure}{\arabic{chapter}-\arabic{figure}}
-\renewcommand{\thetable}{\arabic{chapter}-\arabic{table}}
+\renewcommand{\thetable}{\arabic{chapter}.\arabic{table}}
 \renewcommand{\theequation}{\arabic{chapter}.\arabic{equation}}
 \renewcommand{\thesubfigure}{(\alph{subfigure})}
 \renewcommand{\thesubtable}{(\alph{subtable})}
