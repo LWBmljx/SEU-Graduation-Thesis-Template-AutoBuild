@@ -29,6 +29,7 @@
 \RequirePackage{microtype}
 \RequirePackage{amsmath}
 \RequirePackage{amssymb}
+\RequirePackage{amsthm}
 \RequirePackage{bm}
 \RequirePackage{caption}
 \RequirePackage{subcaption}
@@ -39,6 +40,7 @@
 \RequirePackage{chngcntr}
 \RequirePackage[bottom]{footmisc}
 \RequirePackage{pifont}
+\RequirePackage{tabularx}
 \RequirePackage[
   backend=biber,
   style=gb7714-2015,
@@ -50,6 +52,7 @@
   eprint=false
 ]{biblatex}
 \addbibresource{bib/references.bib}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
 
 \ExplSyntaxOn
 
@@ -428,6 +431,15 @@
       }
   }
 
+\cs_new_protected:Npn \seu_apply_math_display_spacing:
+  {
+    \setlength{\abovedisplayskip}{2pt plus 1pt minus 1pt}
+    \setlength{\belowdisplayskip}{2pt plus 1pt minus 1pt}
+    \setlength{\abovedisplayshortskip}{2pt plus 1pt minus 1pt}
+    \setlength{\belowdisplayshortskip}{2pt plus 1pt minus 1pt}
+    \setlength{\jot}{2pt}
+  }
+
 \cs_new_protected:Npn \seu_apply_body_style:
   {
     \normalfont
@@ -437,6 +449,7 @@
     \setstretch { 1.5 }
     \setlength { \parindent } { 2\ccwd }
     \setlength { \parskip } { 0pt }
+    \seu_apply_math_display_spacing:
   }
 
 \cs_new:Npn \seu_blank_rule:n #1
@@ -2116,9 +2129,9 @@
 \counterwithin{figure}{chapter}
 \counterwithin{table}{chapter}
 \counterwithin{equation}{chapter}
-\renewcommand{\thefigure}{\arabic{chapter}-\arabic{figure}}
-\renewcommand{\thetable}{\arabic{chapter}-\arabic{table}}
-\renewcommand{\theequation}{\arabic{chapter}.\arabic{equation}}
+\renewcommand{\thefigure}{\thechapter-\arabic{figure}}
+\renewcommand{\thetable}{\thechapter-\arabic{table}}
+\renewcommand{\theequation}{\thechapter.\arabic{equation}}
 \renewcommand{\thesubfigure}{(\alph{subfigure})}
 \renewcommand{\thesubtable}{(\alph{subtable})}
 
@@ -2177,4 +2190,63 @@
   \parindent 1em\noindent
   \hb@xt@ 1.8em{\hss\@makefnmark}#1%
 }
+\makeatother
+
+\newtheoremstyle{seuplain}
+  {0.5\baselineskip}
+  {0.5\baselineskip}
+  {\songti\seuxiaosi\selectfont}
+  {2\ccwd}
+  {\seuboldheiti\seuxiaosi\selectfont}
+  {}
+  {0.5em}
+  {\thmname{#1}\thmnumber{ #2}\thmnote{（#3）}}
+
+\newtheoremstyle{seudefinition}
+  {0.5\baselineskip}
+  {0.5\baselineskip}
+  {\songti\seuxiaosi\selectfont}
+  {2\ccwd}
+  {\seuboldheiti\seuxiaosi\selectfont}
+  {}
+  {0.5em}
+  {\thmname{#1}\thmnumber{ #2}\thmnote{（#3）}}
+
+\newtheoremstyle{seuremark}
+  {0.5\baselineskip}
+  {0.5\baselineskip}
+  {\songti\seuxiaosi\selectfont}
+  {2\ccwd}
+  {\seuboldheiti\seuxiaosi\selectfont}
+  {}
+  {0.5em}
+  {\thmname{#1}\thmnumber{ #2}\thmnote{（#3）}}
+
+\theoremstyle{seuplain}
+\newtheorem{theorem}{定理}[chapter]
+\newtheorem{lemma}[theorem]{引理}
+\newtheorem{proposition}[theorem]{命题}
+\newtheorem{corollary}[theorem]{推论}
+\newtheorem{axiom}[theorem]{公理}
+
+\theoremstyle{seudefinition}
+\newtheorem{definition}[theorem]{定义}
+\newtheorem{assumption}[theorem]{假设}
+\newtheorem{example}[theorem]{例}
+
+\theoremstyle{seuremark}
+\newtheorem{remark}[theorem]{注}
+
+\renewcommand{\qedsymbol}{$\square$}
+
+\makeatletter
+\renewenvironment{proof}[1][证明]
+  {\par\pushQED{\qed}%
+   \normalfont
+   \topsep=0.5\baselineskip
+   \trivlist
+   \item[\hskip\labelsep
+     {\seuboldheiti\seuxiaosi\selectfont #1\@addpunct{：}}]%
+   \songti\seuxiaosi\selectfont\ignorespaces}
+  {\popQED\endtrivlist\@endpefalse}
 \makeatother
