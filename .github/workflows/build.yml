@@ -7,10 +7,10 @@ on:
 jobs:
   build:
 
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     
     - uses: TeX-Live/setup-texlive-action@v4
       with:
@@ -49,7 +49,7 @@ jobs:
           float
           biblatex-gb7714-2015
           biber
-          biber-windows
+          texlive-lang-chinese
           collection-latexrecommended
           collection-mathscience
           tocloft
@@ -58,12 +58,11 @@ jobs:
           ragged2e
           chngcntr
           pifont
-    - run: DISM.exe /Online /Add-Capability /CapabilityName:Language.Fonts.Hans~~~und-HANS~0.0.1.0
-    - run: DISM.exe /Online /Add-Capability /CapabilityName:Language.Fonts.Hant~~~und-HANT~0.0.1.0
+    - run: sudo apt-get update && sudo apt-get install -y fonts-noto-cjk fonts-noto-cjk-extra
     - run: latexmk main.tex
     - run: latexmk -c
     
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       with:
         name: main pdf
         path: main.pdf

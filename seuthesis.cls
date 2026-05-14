@@ -262,6 +262,50 @@
       }
   }
 
+%% ---------- platform detection & local font helpers ----------
+\sys_if_platform_unix:TF
+  { \bool_const:Nn \c_seu_is_unix_bool { \c_true_bool } }
+  { \bool_const:Nn \c_seu_is_unix_bool { \c_false_bool } }
+
+% Font file variables (edit these when changing local fonts)
+% _file_tl = full filename with extension (for existence check)
+% _name_tl = filename without extension (for fontspec Path+Extension loading)
+\tl_const:Nn \c_seu_local_song_font_name_tl   { SourceHanSerifSC-Regular }
+\tl_const:Nn \c_seu_local_song_font_file_tl   { SourceHanSerifSC-Regular.otf }
+\tl_const:Nn \c_seu_local_heiti_font_name_tl  { SourceHanSansSC-Medium }
+\tl_const:Nn \c_seu_local_heiti_font_file_tl  { SourceHanSansSC-Medium.otf }
+\tl_const:Nn \c_seu_local_kai_font_name_tl    { ARPLUKaiCN }
+\tl_const:Nn \c_seu_local_kai_font_file_tl    { ARPLUKaiCN.ttf }
+\tl_const:Nn \c_seu_local_fangsong_font_name_tl { SourceHanFangSC-Regular }
+\tl_const:Nn \c_seu_local_fangsong_font_file_tl { SourceHanFangSC-Regular.otf }
+
+% Check if local font file exists under fonts/
+% #1 = font filename (e.g. SourceHanSansSC-Medium.otf)
+\prg_new_protected_conditional:Npnn \seu_local_font_file_exists:n #1 { T, F, TF }
+  {
+    \bool_if:NTF \c_seu_is_unix_bool
+      {
+        \file_if_exist:nTF { fonts/#1 }
+          { \prg_return_true: }
+          { \prg_return_false: }
+      }
+      { \prg_return_false: }
+  }
+
+% #1 = font file base name without extension (e.g. SourceHanSansSC-Medium)
+% #2 = font file extension (e.g. .otf)
+\cs_new_protected:Npn \seu_load_local_cjk_font:nn #1#2
+  {
+    \setCJKmainfont { #1 } [ Path = fonts/, Extension = #2 ]
+    \setCJKfamilyfont { zhsong } { #1 } [ Path = fonts/, Extension = #2 ]
+  }
+
+\cs_new_protected:Npn \seu_load_local_cjk_sans_font:nn #1#2
+  {
+    \setCJKsansfont { #1 } [ Path = fonts/, Extension = #2 ]
+    \setCJKfamilyfont { zhhei } { #1 } [ Path = fonts/, Extension = #2 ]
+  }
+
 \cs_new_protected:Npn \seu_require_system_main_font:n #1
   {
     \IfFontExistsTF { #1 }
@@ -298,18 +342,31 @@
 
 \cs_new_protected:Npn \seu_set_cover_label_font:
   {
-    \IfFontExistsTF { SimHei }
-      { \setCJKfamilyfont { seucovershmedium } { SimHei } }
+    \bool_if:nTF
+      { \c_seu_is_unix_bool && \file_if_exist_p:n { fonts/\c_seu_local_heiti_font_file_tl } }
       {
-        \IfFontExistsTF { STHeitiSC-Medium }
-          { \setCJKfamilyfont { seucovershmedium } { STHeitiSC-Medium } }
+        \setCJKfamilyfont { seucovershmedium }
+          { \c_seu_local_heiti_font_name_tl }
+          [ Path = fonts/, Extension = .otf ]
+      }
+      {
+        \IfFontExistsTF { SimHei }
+          { \setCJKfamilyfont { seucovershmedium } { SimHei } }
           {
-            \IfFontExistsTF { 黑体 }
-              { \setCJKfamilyfont { seucovershmedium } { 黑体 } }
+            \IfFontExistsTF { STHeitiSC-Medium }
+              { \setCJKfamilyfont { seucovershmedium } { STHeitiSC-Medium } }
               {
-                \seu_font_missing_error:nn
-                  { SimHei~or~STHeitiSC-Medium~or~黑体 }
-                  {system-font-name~lookup~only}
+                \IfFontExistsTF { Noto~Sans~CJK~SC }
+                  { \setCJKfamilyfont { seucovershmedium } { Noto~Sans~CJK~SC } }
+                  {
+                    \IfFontExistsTF { 黑体 }
+                      { \setCJKfamilyfont { seucovershmedium } { 黑体 } }
+                      {
+                        \seu_font_missing_error:nn
+                          { SimHei~or~STHeitiSC-Medium~or~Noto~Sans~CJK~SC~or~黑体 }
+                          {system-font-name~lookup~only}
+                      }
+                  }
               }
           }
       }
@@ -317,27 +374,46 @@
 
 \cs_new_protected:Npn \seu_set_heading_font:
   {
-    \IfFontExistsTF { SimHei }
+    \bool_if:nTF
+      { \c_seu_is_unix_bool && \file_if_exist_p:n { fonts/\c_seu_local_heiti_font_file_tl } }
       {
-        \setCJKfamilyfont { seuheadingmedium } { SimHei }
-        \setCJKfamilyfont { seuheadingbold } [ AutoFakeBold = { 4.5 } ] { SimHei }
+        \setCJKfamilyfont { seuheadingmedium }
+          { \c_seu_local_heiti_font_name_tl }
+          [ Path = fonts/, Extension = .otf ]
+        \setCJKfamilyfont { seuheadingbold }
+          [ AutoFakeBold = { 4.5 }, Path = fonts/, Extension = .otf ]
+          { \c_seu_local_heiti_font_name_tl }
       }
       {
-        \IfFontExistsTF { STHeitiSC-Medium }
+        \IfFontExistsTF { SimHei }
           {
-            \setCJKfamilyfont { seuheadingmedium } { STHeitiSC-Medium }
-            \setCJKfamilyfont { seuheadingbold } [ AutoFakeBold = { 4.5 } ] { STHeitiSC-Medium }
+            \setCJKfamilyfont { seuheadingmedium } { SimHei }
+            \setCJKfamilyfont { seuheadingbold } [ AutoFakeBold = { 4.5 } ] { SimHei }
           }
           {
-            \IfFontExistsTF { 黑体 }
+            \IfFontExistsTF { STHeitiSC-Medium }
               {
-                \setCJKfamilyfont { seuheadingmedium } { 黑体 }
-                \setCJKfamilyfont { seuheadingbold } [ AutoFakeBold = { 4.5 } ] { 黑体 }
+                \setCJKfamilyfont { seuheadingmedium } { STHeitiSC-Medium }
+                \setCJKfamilyfont { seuheadingbold } [ AutoFakeBold = { 4.5 } ] { STHeitiSC-Medium }
               }
               {
-                \seu_font_missing_error:nn
-                  { SimHei~or~STHeitiSC-Medium~or~黑体 }
-                  {system-font-name~lookup~only}
+                \IfFontExistsTF { Noto~Sans~CJK~SC }
+                  {
+                    \setCJKfamilyfont { seuheadingmedium } { Noto~Sans~CJK~SC }
+                    \setCJKfamilyfont { seuheadingbold } [ AutoFakeBold = { 4.5 } ] { Noto~Sans~CJK~SC }
+                  }
+                  {
+                    \IfFontExistsTF { 黑体 }
+                      {
+                        \setCJKfamilyfont { seuheadingmedium } { 黑体 }
+                        \setCJKfamilyfont { seuheadingbold } [ AutoFakeBold = { 4.5 } ] { 黑体 }
+                      }
+                      {
+                        \seu_font_missing_error:nn
+                          { SimHei~or~STHeitiSC-Medium~or~Noto~Sans~CJK~SC~or~黑体 }
+                          {system-font-name~lookup~only}
+                      }
+                  }
               }
           }
       }
@@ -345,12 +421,9 @@
 
 \cs_new_protected:Npn \seu_apply_default_fonts:
   {
-    % Strict mode:
-    % - no absolute paths
-    % - no fallback / substitution / synthetic bold-slant
-    % - non-distributable fonts: search system fonts only
-    % - distributable fonts: search relative directory fonts/ only
-    % Exact fonts required by the Word template.
+    % Font priority:
+    % 1. Local font files in fonts/ directory (Linux/Ubuntu only)
+    % 2. System-installed fonts (platform-specific names)
     % macOS fallback: Songti SC, Heiti SC, Kaiti SC, STFangsong.
 
     \seu_set_cover_label_font:
@@ -358,72 +431,128 @@
 
     \seu_require_system_main_font:n { Times~New~Roman }
 
-    \IfFontExistsTF { SimSun }
-      { \seu_require_system_cjk_main_font:n { SimSun } }
+    % --- CJK Song (main serif) ---
+    \bool_if:nTF
+      { \c_seu_is_unix_bool && \file_if_exist_p:n { fonts/\c_seu_local_song_font_file_tl } }
+      { \seu_load_local_cjk_font:nn { \c_seu_local_song_font_name_tl } { .otf } }
       {
-        \IfFontExistsTF { Songti~SC }
-          { \seu_require_system_cjk_main_font:n { Songti~SC } }
+        \IfFontExistsTF { SimSun }
+          { \seu_require_system_cjk_main_font:n { SimSun } }
           {
-            \IfFontExistsTF { 宋体 }
-              { \seu_require_system_cjk_main_font:n { 宋体 } }
-              { \seu_font_missing_error:nn { SimSun~or~Songti~SC~or~宋体 } {system-font-name~lookup~only} }
-          }
-      }
-
-    \IfFontExistsTF { SimSun }
-      { \setCJKfamilyfont { seuboldsong } [ AutoFakeBold = { 3.5 } ] { SimSun } }
-      {
-        \IfFontExistsTF { Songti~SC }
-          { \setCJKfamilyfont { seuboldsong } [ AutoFakeBold = { 3.5 } ] { Songti~SC } }
-          {
-            \IfFontExistsTF { 宋体 }
-              { \setCJKfamilyfont { seuboldsong } [ AutoFakeBold = { 3.5 } ] { 宋体 } }
-              { \seu_font_missing_error:nn { SimSun~or~Songti~SC~or~宋体 } {system-font-name~lookup~only} }
-          }
-      }
-
-    \IfFontExistsTF { SimHei }
-      { \seu_require_system_cjk_sans_font:n { SimHei } }
-      {
-        \IfFontExistsTF { STHeitiSC-Medium }
-          { \seu_require_system_cjk_sans_font:n { STHeitiSC-Medium } }
-          {
-            \IfFontExistsTF { 黑体 }
-              { \seu_require_system_cjk_sans_font:n { 黑体 } }
-              { \seu_font_missing_error:nn { SimHei~or~STHeitiSC-Medium~or~黑体 } {system-font-name~lookup~only} }
-          }
-      }
-
-    \IfFontExistsTF { KaiTi }
-      { \seu_require_system_cjk_family_font:nn { zhkai } { KaiTi } }
-      {
-        \IfFontExistsTF { Kaiti~SC }
-          { \seu_require_system_cjk_family_font:nn { zhkai } { Kaiti~SC } }
-          {
-            \IfFontExistsTF { 楷体 }
-              { \seu_require_system_cjk_family_font:nn { zhkai } { 楷体 } }
-              { \seu_font_missing_error:nn { KaiTi~or~Kaiti~SC~or~楷体 } {system-font-name~lookup~only} }
-          }
-      }
-
-    \IfFontExistsTF { FangSong }
-      {
-        \setCJKmonofont { FangSong }
-        \setCJKfamilyfont { zhfs } { FangSong }
-      }
-      {
-        \IfFontExistsTF { STFangsong }
-          {
-            \setCJKmonofont { STFangsong }
-            \setCJKfamilyfont { zhfs } { STFangsong }
-          }
-          {
-            \IfFontExistsTF { 仿宋 }
+            \IfFontExistsTF { Songti~SC }
+              { \seu_require_system_cjk_main_font:n { Songti~SC } }
               {
-                \setCJKmonofont { 仿宋 }
-                \setCJKfamilyfont { zhfs } { 仿宋 }
+                \IfFontExistsTF { Noto~Serif~CJK~SC }
+                  { \seu_require_system_cjk_main_font:n { Noto~Serif~CJK~SC } }
+                  {
+                    \IfFontExistsTF { 宋体 }
+                      { \seu_require_system_cjk_main_font:n { 宋体 } }
+                      { \seu_font_missing_error:nn { SimSun~or~Songti~SC~or~Noto~Serif~CJK~SC~or~宋体 } {system-font-name~lookup~only} }
+                  }
               }
-              { \seu_font_missing_error:nn { FangSong~or~STFangsong~or~仿宋 } {system-font-name~lookup~only} }
+          }
+      }
+
+    % --- CJK bold song ---
+    \bool_if:nTF
+      { \c_seu_is_unix_bool && \file_if_exist_p:n { fonts/\c_seu_local_song_font_file_tl } }
+      {
+        \setCJKfamilyfont { seuboldsong }
+          [ AutoFakeBold = { 3.5 }, Path = fonts/, Extension = .otf ]
+          { \c_seu_local_song_font_name_tl }
+      }
+      {
+        \IfFontExistsTF { SimSun }
+          { \setCJKfamilyfont { seuboldsong } [ AutoFakeBold = { 3.5 } ] { SimSun } }
+          {
+            \IfFontExistsTF { Songti~SC }
+              { \setCJKfamilyfont { seuboldsong } [ AutoFakeBold = { 3.5 } ] { Songti~SC } }
+              {
+                \IfFontExistsTF { Noto~Serif~CJK~SC }
+                  { \setCJKfamilyfont { seuboldsong } [ AutoFakeBold = { 3.5 } ] { Noto~Serif~CJK~SC } }
+                  {
+                    \IfFontExistsTF { 宋体 }
+                      { \setCJKfamilyfont { seuboldsong } [ AutoFakeBold = { 3.5 } ] { 宋体 } }
+                      { \seu_font_missing_error:nn { SimSun~or~Songti~SC~or~Noto~Serif~CJK~SC~or~宋体 } {system-font-name~lookup~only} }
+                  }
+              }
+          }
+      }
+
+    % --- CJK Hei (sans) ---
+    \bool_if:nTF
+      { \c_seu_is_unix_bool && \file_if_exist_p:n { fonts/\c_seu_local_heiti_font_file_tl } }
+      { \seu_load_local_cjk_sans_font:nn { \c_seu_local_heiti_font_name_tl } { .otf } }
+      {
+        \IfFontExistsTF { SimHei }
+          { \seu_require_system_cjk_sans_font:n { SimHei } }
+          {
+            \IfFontExistsTF { STHeitiSC-Medium }
+              { \seu_require_system_cjk_sans_font:n { STHeitiSC-Medium } }
+              {
+                \IfFontExistsTF { Noto~Sans~CJK~SC }
+                  { \seu_require_system_cjk_sans_font:n { Noto~Sans~CJK~SC } }
+                  {
+                    \IfFontExistsTF { 黑体 }
+                      { \seu_require_system_cjk_sans_font:n { 黑体 } }
+                      { \seu_font_missing_error:nn { SimHei~or~STHeitiSC-Medium~or~Noto~Sans~CJK~SC~or~黑体 } {system-font-name~lookup~only} }
+                  }
+              }
+          }
+      }
+
+    % --- CJK Kai ---
+    \bool_if:nTF
+      { \c_seu_is_unix_bool && \file_if_exist_p:n { fonts/\c_seu_local_kai_font_file_tl } }
+      {
+        \setCJKfamilyfont { zhkai }
+          { \c_seu_local_kai_font_name_tl }
+          [ Path = fonts/, Extension = .ttf ]
+      }
+      {
+        \IfFontExistsTF { KaiTi }
+          { \seu_require_system_cjk_family_font:nn { zhkai } { KaiTi } }
+          {
+            \IfFontExistsTF { Kaiti~SC }
+              { \seu_require_system_cjk_family_font:nn { zhkai } { Kaiti~SC } }
+              {
+                \IfFontExistsTF { 楷体 }
+                  { \seu_require_system_cjk_family_font:nn { zhkai } { 楷体 } }
+                  { \seu_font_missing_error:nn { KaiTi~or~Kaiti~SC~or~楷体 } {system-font-name~lookup~only} }
+              }
+          }
+      }
+
+    % --- CJK FangSong (mono) ---
+    \bool_if:nTF
+      { \c_seu_is_unix_bool && \file_if_exist_p:n { fonts/\c_seu_local_fangsong_font_file_tl } }
+      {
+        \setCJKmonofont { \c_seu_local_fangsong_font_name_tl }
+          [ Path = fonts/, Extension = .otf ]
+        \setCJKfamilyfont { zhfs }
+          { \c_seu_local_fangsong_font_name_tl }
+          [ Path = fonts/, Extension = .otf ]
+      }
+      {
+        \IfFontExistsTF { FangSong }
+          {
+            \setCJKmonofont { FangSong }
+            \setCJKfamilyfont { zhfs } { FangSong }
+          }
+          {
+            \IfFontExistsTF { STFangsong }
+              {
+                \setCJKmonofont { STFangsong }
+                \setCJKfamilyfont { zhfs } { STFangsong }
+              }
+              {
+                \IfFontExistsTF { 仿宋 }
+                  {
+                    \setCJKmonofont { 仿宋 }
+                    \setCJKfamilyfont { zhfs } { 仿宋 }
+                  }
+                  { \seu_font_missing_error:nn { FangSong~or~STFangsong~or~仿宋 } {system-font-name~lookup~only} }
+              }
           }
       }
   }
@@ -1922,7 +2051,20 @@
   {
     \IfFontExistsTF{Kaiti SC}
       { \newfontfamily\seucoverdatefamily{Kaiti SC} }
-      { \newfontfamily\seucoverdatefamily{楷体} }
+      {
+        \IfFontExistsTF{Noto Serif CJK SC}
+          { \newfontfamily\seucoverdatefamily{Noto Serif CJK SC} }
+          {
+            \bool_if:nTF
+              { \c_seu_is_unix_bool && \file_if_exist_p:n { fonts/\c_seu_local_kai_font_file_tl } }
+              {
+                \newfontfamily\seucoverdatefamily
+                  { \c_seu_local_kai_font_name_tl }
+                  [ Path = fonts/, Extension = .ttf ]
+              }
+              { \newfontfamily\seucoverdatefamily{楷体} }
+          }
+      }
   }
 
 \makeatletter
