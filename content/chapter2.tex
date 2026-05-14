@@ -21,7 +21,16 @@
   \caption{每小时降水量 24 小时均值分布图}
 \end{figure}
 
-\clearpage
+
+\begin{seulongtable}[tab:long-demo]{@{\extracolsep{\fill}}ccccc}{长表格示例}{序号 & 产品 & 产量 & 销量 & 产值}
+  1 & 手机 & 11000 & 10000 & 500 \\
+  2 & 电视机 & 5500 & 5000 & 220 \\
+  \newpage
+  3 & 计算机 & 1100 & 1000 & 280 \\
+  4 & 平板电脑 & 2600 & 2300 & 180 \\
+  5 & 智能手表 & 3200 & 3000 & 120 \\
+\end{seulongtable}
+
 
 \begin{figure}[htbp]
   \centering
@@ -72,18 +81,13 @@
   {\songti\fontsize{10.5pt}{12.6pt}\selectfont
   \begin{tabular*}{16.48cm}{@{\extracolsep{\fill}}lcccccccccccc}
     \toprule
-    & \multicolumn{4}{c}{Stage 1 (>7.1 $\mu$m)} & \multicolumn{4}{c}{Stage 2 (4.8-7.1 $\mu$m)} & \multicolumn{4}{c}{Stage 3 (3.2-4.7 $\mu$m)} \\
-    \midrule
-  \end{tabular*}
-  }
-\end{center}
-
-\clearpage
-\begin{center}
-  {\songti\fontsize{10.5pt}{12.6pt}\selectfont
-  \begin{tabular*}{16.48cm}{@{\extracolsep{\fill}}lcccccccccccc}
-    \toprule
-    & Con & Low & Medium & High & Con & Low & Medium & High & Con & Low & Medium & High \\
+    & \multicolumn{4}{c}{Stage 1 (>7.1 $\mu$m)} &
+      \multicolumn{4}{c}{Stage 2 (4.8--7.1 $\mu$m)} &
+      \multicolumn{4}{c}{Stage 3 (3.2--4.7 $\mu$m)} \\
+    \cmidrule(lr){2-5} \cmidrule(lr){6-9} \cmidrule(lr){10-13}
+    & Con & Low & Medium & High &
+      Con & Low & Medium & High &
+      Con & Low & Medium & High \\
     \midrule
     H & 2.52 & 2.58 & 2.57 & 2.24 & 2.48 & 2.21 & 2.21 & 2.36 & 2.66 & 2.65 & 2.64 & 2.53 \\
     E & 0.87 & 0.88 & 0.93 & 0.85 & 0.90 & 0.86 & 0.86 & 0.85 & 0.90 & 0.90 & 0.85 & 0.88 \\

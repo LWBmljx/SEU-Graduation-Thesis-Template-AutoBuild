@@ -410,6 +410,44 @@ xelatex -interaction=nonstopmode -file-line-error -halt-on-error -synctex=0 main
 - `\seumottopage`
   末页“止于至善”图片页
 
+### 长表格与续表
+
+当前模板同时保留了普通单页表和长表两种写法：
+
+- 单页表继续使用原来的 `\captionof{table} + tabular/tabular*` 写法。
+- 只有当表格需要跨页时，才使用 `seulongtable` 环境。
+
+`seulongtable` 的调用格式为：
+
+```tex
+\begin{seulongtable}[<label>][<目录短标题>]{<列格式>}{<表题>}{<表头行>}
+  <数据行 1> \\
+  <数据行 2> \\
+\end{seulongtable}
+```
+
+说明如下：
+
+- 第 1 个可选参数是 `label`，可省略。
+- 第 2 个可选参数是目录短标题，可省略；省略时目录使用完整表题。
+- 第 3 个参数是 `longtable` 的列格式。
+- 第 4 个参数是表题。
+- 第 5 个参数是表头内容，可以包含多行，但最后一行不要手写结尾的 `\\`。
+
+当前 `seulongtable` 的续表行为如下：
+
+- 首页表题保持普通表题样式不变。
+- 若表格跨页，续页标题会自动显示为**居中**的 `续表 x.x 原表名`。
+- 续页除了把“表”改成“续表”之外，其余标题内容保持不变。
+- 每一页都会保留三线表结构：页首有顶线，页尾有底线，续页也一样。
+- 表头会在续页自动重复。
+
+说明：
+
+- `\newpage` 可以放在表体中，用来演示或强制续表位置；正常写作时也可以不写，让 `longtable` 自然分页。
+- `seulongtable` 底层基于 `longtable`，通常需要至少编译 2 次，列宽和续页信息才会稳定。
+- 现有示例可参考 [content/chapter2.tex](content/chapter2.tex) 中“长表格示例”。
+
 ## 签名图片要求
 
 学生签名和教师签名图片请遵循以下要求：
